@@ -4,24 +4,24 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 const s = {
-  page: { minHeight: '100vh', background: '#050a14', color: '#fff', padding: '2rem' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(0,255,200,0.1)' },
-  title: { fontFamily: 'Georgia, serif', fontSize: '1.8rem', fontWeight: 400, color: '#fff' },
+  page: { minHeight: '100vh', background: '#050a14', color: '#fff', padding: '1.25rem' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(0,255,200,0.1)', flexWrap: 'wrap' as const, gap: '1rem' },
+  title: { fontFamily: 'Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#fff' },
   label: { fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(0,255,200,0.7)', textTransform: 'uppercase' as const, display: 'block', marginBottom: '0.5rem' },
   input: { width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.75rem 1rem', fontFamily: "'Courier New', monospace", fontSize: '0.85rem', outline: 'none', boxSizing: 'border-box' as const, marginBottom: '1rem' },
   btn: { background: '#00ffc8', color: '#020a10', border: 'none', padding: '0.75rem 1.5rem', fontFamily: "'Courier New', monospace", fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase' as const, cursor: 'pointer', fontWeight: 700 },
   btnDanger: { background: 'transparent', color: '#f472b6', border: '1px solid #f472b630', padding: '0.4rem 0.9rem', fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase' as const, cursor: 'pointer' },
-  btnSecondary: { background: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', fontFamily: "'Courier New', monospace", fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase' as const, cursor: 'pointer' },
-  card: { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', padding: '1.5rem', marginBottom: '1rem' },
-  section: { marginBottom: '4rem' },
+  btnSecondary: { background: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.6rem 1rem', fontFamily: "'Courier New', monospace", fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' as const, cursor: 'pointer' },
+  card: { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', padding: '1.25rem', marginBottom: '0.75rem' },
+  section: { marginBottom: '3rem' },
   sectionTitle: { fontFamily: "'Courier New', monospace", fontSize: '0.7rem', letterSpacing: '0.3em', color: '#00ffc8', textTransform: 'uppercase' as const, marginBottom: '1.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(0,255,200,0.1)' },
-  row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' },
+  row: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' as const },
   tag: { fontFamily: "'Courier New', monospace", fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.04)', padding: '2px 8px', marginRight: '4px' },
 }
 
 export default function Dashboard() {
   const router = useRouter()
-  const [tab, setTab] = useState<'projects' | 'skills' | 'certs'>('projects')
+  const [tab, setTab] = useState<'projects' | 'skills' | 'certs' | 'about'>('projects')
   const [projects, setProjects] = useState<any[]>([])
   const [skills, setSkills] = useState<any[]>([])
   const [certs, setCerts] = useState<any[]>([])
@@ -42,6 +42,12 @@ export default function Dashboard() {
   const [cIssuer, setCIssuer] = useState('')
   const [cYear, setCYear] = useState('')
 
+  // About form
+  const [aHeading, setAHeading] = useState('')
+  const [aPara1, setAPara1] = useState('')
+  const [aPara2, setAPara2] = useState('')
+  const [aboutId, setAboutId] = useState('')
+
   const [msg, setMsg] = useState('')
 
   useEffect(() => {
@@ -52,18 +58,24 @@ export default function Dashboard() {
   }, [])
 
   const loadAll = async () => {
-    const [p, sk, c] = await Promise.all([
+    const [p, sk, c, ab] = await Promise.all([
       supabase.from('projects').select('*').order('created_at'),
       supabase.from('skills').select('*'),
       supabase.from('certifications').select('*').order('created_at'),
+      supabase.from('about').select('*').single(),
     ])
     if (p.data) setProjects(p.data)
     if (sk.data) setSkills(sk.data)
     if (c.data) setCerts(c.data)
+    if (ab.data) {
+      setAboutId(ab.data.id)
+      setAHeading(ab.data.heading || '')
+      setAPara1(ab.data.paragraph1 || '')
+      setAPara2(ab.data.paragraph2 || '')
+    }
   }
 
   const notify = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
-
   const logout = async () => { await supabase.auth.signOut(); router.push('/admin') }
 
   const addProject = async () => {
@@ -102,7 +114,13 @@ export default function Dashboard() {
     await supabase.from('certifications').delete().eq('id', id); loadAll()
   }
 
+  const saveAbout = async () => {
+    await supabase.from('about').update({ heading: aHeading, paragraph1: aPara1, paragraph2: aPara2 }).eq('id', aboutId)
+    notify('About section updated!')
+  }
+
   const CATEGORIES = ['Core', 'Geospatial', 'Remote Sensing', 'Data Science', 'Data Engineering', 'Cloud', 'GeoAI']
+  const TAB_LABELS: Record<string, string> = { projects: 'Projects', skills: 'Skills', certs: 'Certs', about: 'About' }
 
   return (
     <div style={s.page}>
@@ -111,10 +129,10 @@ export default function Dashboard() {
         {/* Header */}
         <div style={s.header}>
           <div>
-            <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.3em', color: '#00ffc8', marginBottom: '0.5rem' }}>ADMIN DASHBOARD</div>
+            <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.3em', color: '#00ffc8', marginBottom: '0.4rem' }}>ADMIN DASHBOARD</div>
             <div style={s.title}>Portfolio Manager</div>
           </div>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' as const }}>
             <a href="/" target="_blank" style={{ ...s.btnSecondary, textDecoration: 'none', display: 'inline-block' }}>View Site</a>
             <button onClick={logout} style={s.btnSecondary}>Logout</button>
           </div>
@@ -124,10 +142,10 @@ export default function Dashboard() {
         {msg && <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.75rem', color: '#00ffc8', padding: '0.75rem 1rem', border: '1px solid rgba(0,255,200,0.2)', background: 'rgba(0,255,200,0.05)', marginBottom: '2rem' }}>{msg}</div>}
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '3rem' }}>
-          {(['projects', 'skills', 'certs'] as const).map((t) => (
+        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '2.5rem', flexWrap: 'wrap' as const }}>
+          {(['projects', 'skills', 'certs', 'about'] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)} style={{ ...s.btnSecondary, color: tab === t ? '#00ffc8' : 'rgba(255,255,255,0.4)', borderColor: tab === t ? '#00ffc8' : 'rgba(255,255,255,0.1)' }}>
-              {t === 'certs' ? 'Certifications' : t.charAt(0).toUpperCase() + t.slice(1)}
+              {TAB_LABELS[t]}
             </button>
           ))}
         </div>
@@ -158,13 +176,13 @@ export default function Dashboard() {
               {projects.map((p) => (
                 <div key={p.id} style={s.card}>
                   <div style={s.row}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', color: '#fff', marginBottom: '0.5rem' }}>{p.title}</div>
-                      <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.7rem', color: p.status === 'Published' ? '#00ffc8' : '#a78bfa', marginBottom: '0.5rem' }}>{p.status}</div>
-                      <div>{(p.tags || []).map((t: string) => <span key={t} style={s.tag}>{t}</span>)}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', color: '#fff', marginBottom: '0.4rem' }}>{p.title}</div>
+                      <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.7rem', color: p.status === 'Published' ? '#00ffc8' : '#a78bfa', marginBottom: '0.4rem' }}>{p.status}</div>
+                      <div style={{ flexWrap: 'wrap' as const }}>{(p.tags || []).map((t: string) => <span key={t} style={s.tag}>{t}</span>)}</div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                      <button style={s.btnSecondary} onClick={() => toggleStatus(p.id, p.status)}>Toggle Status</button>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0, flexWrap: 'wrap' as const }}>
+                      <button style={s.btnSecondary} onClick={() => toggleStatus(p.id, p.status)}>Toggle</button>
                       <button style={s.btnDanger} onClick={() => deleteProject(p.id)}>Delete</button>
                     </div>
                   </div>
@@ -203,6 +221,22 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ABOUT TAB */}
+        {tab === 'about' && (
+          <div>
+            <div style={s.section}>
+              <div style={s.sectionTitle}>Edit About Section</div>
+              <label style={s.label}>Heading</label>
+              <input style={s.input} value={aHeading} onChange={(e) => setAHeading(e.target.value)} placeholder="Your main heading" />
+              <label style={s.label}>Paragraph 1</label>
+              <textarea style={{ ...s.input, minHeight: '120px', resize: 'vertical' }} value={aPara1} onChange={(e) => setAPara1(e.target.value)} placeholder="First paragraph" />
+              <label style={s.label}>Paragraph 2</label>
+              <textarea style={{ ...s.input, minHeight: '120px', resize: 'vertical' }} value={aPara2} onChange={(e) => setAPara2(e.target.value)} placeholder="Second paragraph" />
+              <button style={s.btn} onClick={saveAbout}>Save About</button>
+            </div>
+          </div>
+        )}
+
         {/* CERTS TAB */}
         {tab === 'certs' && (
           <div>
@@ -222,7 +256,7 @@ export default function Dashboard() {
               {certs.map((c) => (
                 <div key={c.id} style={s.card}>
                   <div style={s.row}>
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', color: '#fff', marginBottom: '4px' }}>{c.title}</div>
                       <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>{c.issuer} · {c.year}</div>
                     </div>

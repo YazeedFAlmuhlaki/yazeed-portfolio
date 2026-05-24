@@ -27,6 +27,7 @@ export default function Home() {
   const [projects, setProjects] = useState<any[]>([])
   const [skills, setSkills] = useState<any[]>([])
   const [certs, setCerts] = useState<any[]>([])
+  const [about, setAbout] = useState<any>(null)
   const [activeCategory, setActiveCategory] = useState('All')
   const [activeNav, setActiveNav] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -44,6 +45,7 @@ export default function Home() {
     supabase.from('projects').select('*').order('created_at').then(({ data }) => data && setProjects(data))
     supabase.from('skills').select('*').then(({ data }) => data && setSkills(data))
     supabase.from('certifications').select('*').order('created_at').then(({ data }) => data && setCerts(data))
+    supabase.from('about').select('*').single().then(({ data }) => data && setAbout(data))
   }, [])
 
   useEffect(() => {
@@ -112,10 +114,10 @@ export default function Home() {
       <section id="About" style={{ position: 'relative', zIndex: 1, maxWidth: '960px', margin: '0 auto', padding: '8rem 1.5rem' }}>
         <div ref={aboutRef} className="reveal">
           <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.7rem', letterSpacing: '0.35em', color: '#2563eb', textTransform: 'uppercase', marginBottom: '0.75rem', opacity: 0.7, display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#2563eb' }} />01 / About</div>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 400, color: '#111111', margin: '0 0 2.5rem', lineHeight: 1.2 }}>Location is the most underused feature in <span style={{ color: '#2563eb', fontStyle: 'italic' }}>modern analytics.</span> I build the systems that change that.</h2>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 400, color: '#111111', margin: '0 0 2.5rem', lineHeight: 1.2 }}>{about?.heading || 'Location is the most underused feature in modern analytics.'}</h2>
           <div style={{ maxWidth: '640px' }}>
-            <p style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.85, fontFamily: 'Georgia, serif', marginBottom: '1.5rem' }}>I am a Spatial Data Scientist and GeoAI practitioner based in Riyadh — combining deep learning, statistical modeling, and spatial data engineering to turn raw location data into predictive systems that reveal what conventional data science misses.</p>
-            <p style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.85, fontFamily: 'Georgia, serif' }}>My projects include groundwater depletion mapping across Saudi Arabia, dust health exposure indices across Saudi governorates, and GeoAI pipelines trained on Earth observation imagery. From classifying healthcare facility quality to mapping environmental risk across census tracts — I work on problems where geography is not background noise. It is the answer.</p>
+            <p style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.85, fontFamily: 'Georgia, serif', marginBottom: '1.5rem' }}>{about?.paragraph1 || ''}</p>
+            <p style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.85, fontFamily: 'Georgia, serif' }}>{about?.paragraph2 || ''}</p>
           </div>
         </div>
       </section>
