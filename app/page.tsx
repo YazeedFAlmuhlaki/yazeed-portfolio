@@ -23,6 +23,8 @@ function useReveal() {
   return ref
 }
 
+const CV_URL = 'https://glgkclzcfvcvsstkezqh.supabase.co/storage/v1/object/public/cv/Yazeed_Almuhlaki_CV.pdf'
+
 export default function Home() {
   const [projects, setProjects] = useState<any[]>([])
   const [skills, setSkills] = useState<any[]>([])
@@ -107,6 +109,7 @@ export default function Home() {
         <div style={{ marginTop: '3rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button onClick={() => scrollTo('Projects')} style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '0.75rem 2rem', fontFamily: "'Courier New', monospace", fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase', cursor: 'pointer', fontWeight: 700 }}>View Projects</button>
           <button onClick={() => scrollTo('Contact')} style={{ background: 'transparent', color: '#2563eb', border: '1px solid #2563eb', padding: '0.75rem 2rem', fontFamily: "'Courier New', monospace", fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase', cursor: 'pointer' }}>Contact</button>
+          <a href={CV_URL} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', background: 'transparent', color: '#111111', border: '1px solid #e5e7eb', padding: '0.75rem 2rem', fontFamily: "'Courier New', monospace", fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase', cursor: 'pointer', textDecoration: 'none' }}>Download CV</a>
         </div>
       </section>
 
