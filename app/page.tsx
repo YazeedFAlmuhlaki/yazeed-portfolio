@@ -195,8 +195,8 @@ export default function Home() {
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
               { label: 'GitHub', href: 'https://github.com/YazeedFAlmuhlaki' },
-              { label: 'LinkedIn', href: 'https://www.linkedin.com/in/yazeed-almuhlaki-0172a4360' },
-              { label: 'Email', href: 'mailto:yazeedfalmuhlaki@gmail.com' }
+              { label: 'LinkedIn', href: 'https://www.linkedin.com/in/yazeed-almuhlaki' },
+              { label: 'Email', href: 'mailto:yazeed@almuhlaki.dev' }
             ].map((link) => (
               <a key={link.label} href={link.href} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', border: '1px solid #e5e7eb', padding: '0.9rem 2.5rem', textDecoration: 'none' }}>
                 <span style={{ fontFamily: "'Courier New', monospace", fontSize: '0.75rem', letterSpacing: '0.18em', color: '#374151', textTransform: 'uppercase' }}>{link.label}</span>
