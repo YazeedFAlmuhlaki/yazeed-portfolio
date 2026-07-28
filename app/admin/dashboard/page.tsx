@@ -3,39 +3,53 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+const SERIF = "'Playfair Display', Georgia, serif"
+const SANS = "'Outfit', -apple-system, system-ui, sans-serif"
+
 const s = {
-  page: { minHeight: '100vh', background: '#050a14', color: '#fff', padding: '1.25rem' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(0,255,200,0.1)', flexWrap: 'wrap' as const, gap: '1rem' },
-  title: { fontFamily: 'Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#fff' },
-  label: { fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(0,255,200,0.7)', textTransform: 'uppercase' as const, display: 'block', marginBottom: '0.5rem' },
-  input: { width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.75rem 1rem', fontFamily: "'Courier New', monospace", fontSize: '0.85rem', outline: 'none', boxSizing: 'border-box' as const, marginBottom: '1rem' },
-  btn: { background: '#00ffc8', color: '#020a10', border: 'none', padding: '0.75rem 1.5rem', fontFamily: "'Courier New', monospace", fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase' as const, cursor: 'pointer', fontWeight: 700 },
-  btnDanger: { background: 'transparent', color: '#f472b6', border: '1px solid #f472b630', padding: '0.4rem 0.9rem', fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase' as const, cursor: 'pointer' },
-  btnSecondary: { background: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.6rem 1rem', fontFamily: "'Courier New', monospace", fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' as const, cursor: 'pointer' },
-  card: { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', padding: '1.25rem', marginBottom: '0.75rem' },
-  section: { marginBottom: '3rem' },
-  sectionTitle: { fontFamily: "'Courier New', monospace", fontSize: '0.7rem', letterSpacing: '0.3em', color: '#00ffc8', textTransform: 'uppercase' as const, marginBottom: '1.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(0,255,200,0.1)' },
-  row: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' as const },
-  tag: { fontFamily: "'Courier New', monospace", fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.04)', padding: '2px 8px', marginRight: '4px' },
+  page: { minHeight: '100vh', background: '#0f0f0f', color: '#fff', padding: '1.25rem', fontFamily: SANS },
+  wrap: { maxWidth: '1000px', margin: '0 auto' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap' as const, gap: '1rem' },
+  eyebrow: { fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.22em', textTransform: 'uppercase' as const, marginBottom: '0.35rem' },
+  title: { fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: '#fff' },
+  label: { fontSize: '0.6rem', letterSpacing: '0.18em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' as const, display: 'block', marginBottom: '0.4rem' },
+  input: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', padding: '0.7rem 0.9rem', fontFamily: SANS, fontSize: '0.85rem', fontWeight: 300, outline: 'none', boxSizing: 'border-box' as const, marginBottom: '0.85rem' },
+  btn: { background: '#fff', color: '#0f0f0f', border: 'none', padding: '0.7rem 1.5rem', fontFamily: SANS, fontSize: '0.68rem', letterSpacing: '0.14em', textTransform: 'uppercase' as const, cursor: 'pointer', fontWeight: 600 },
+  btnGhost: { background: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.12)', padding: '0.5rem 0.9rem', fontFamily: SANS, fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase' as const, cursor: 'pointer' },
+  btnTiny: { background: 'transparent', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)', padding: '3px 8px', fontFamily: SANS, fontSize: '0.58rem', letterSpacing: '0.08em', textTransform: 'uppercase' as const, cursor: 'pointer' },
+  btnDanger: { background: 'transparent', color: '#f472b6', border: '1px solid rgba(244,114,182,0.2)', padding: '3px 8px', fontFamily: SANS, fontSize: '0.58rem', letterSpacing: '0.08em', textTransform: 'uppercase' as const, cursor: 'pointer' },
+  card: { background: '#161616', border: '1px solid rgba(255,255,255,0.06)', padding: '1rem', marginBottom: '0.6rem' },
+  sectionTitle: { fontSize: '0.62rem', letterSpacing: '0.22em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' as const, marginBottom: '1rem' },
+  col: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' },
 }
+
+const CATEGORIES = ['Core', 'Geospatial', 'Remote Sensing', 'Data Science', 'Data Engineering', 'Cloud', 'GeoAI']
+const TABS = ['projects', 'skills', 'certs', 'about', 'cv'] as const
+const TAB_LABELS: Record<string, string> = { projects: 'Projects', skills: 'Skills', certs: 'Certs', about: 'About & Links', cv: 'CV' }
 
 export default function Dashboard() {
   const router = useRouter()
-  const [tab, setTab] = useState<'projects' | 'skills' | 'certs' | 'about'>('projects')
+  const [tab, setTab] = useState<typeof TABS[number]>('projects')
   const [projects, setProjects] = useState<any[]>([])
   const [skills, setSkills] = useState<any[]>([])
   const [certs, setCerts] = useState<any[]>([])
+  const [msg, setMsg] = useState('')
+
+  // Editing state
+  const [editId, setEditId] = useState<string | null>(null)
 
   // Project form
   const [pTitle, setPTitle] = useState('')
   const [pDesc, setPDesc] = useState('')
   const [pTags, setPTags] = useState('')
   const [pGithub, setPGithub] = useState('')
+  const [pYear, setPYear] = useState('')
   const [pStatus, setPStatus] = useState('In Progress')
 
   // Skill form
-  const [sName, setSName] = useState('')
-  const [sCategory, setSCategory] = useState('Geospatial')
+  const [skName, setSkName] = useState('')
+  const [skCategory, setSkCategory] = useState('Geospatial')
+  const [skFeatured, setSkFeatured] = useState(false)
 
   // Cert form
   const [cTitle, setCTitle] = useState('')
@@ -43,25 +57,29 @@ export default function Dashboard() {
   const [cYear, setCYear] = useState('')
 
   // About form
-  const [aHeading, setAHeading] = useState('')
-  const [aPara1, setAPara1] = useState('')
-  const [aPara2, setAPara2] = useState('')
   const [aboutId, setAboutId] = useState('')
+  const [aHeading, setAHeading] = useState('')
+  const [aP1, setAP1] = useState('')
+  const [aP2, setAP2] = useState('')
+  const [aTagline, setATagline] = useState('')
+  const [aGithub, setAGithub] = useState('')
+  const [aLinkedin, setALinkedin] = useState('')
+  const [aEmail, setAEmail] = useState('')
+  const [aCvUrl, setACvUrl] = useState('')
 
-  const [msg, setMsg] = useState('')
+  // CV upload
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) router.push('/admin')
-    })
+    supabase.auth.getSession().then(({ data }) => { if (!data.session) router.push('/admin') })
     loadAll()
   }, [])
 
   const loadAll = async () => {
     const [p, sk, c, ab] = await Promise.all([
-      supabase.from('projects').select('*').order('created_at'),
-      supabase.from('skills').select('*'),
-      supabase.from('certifications').select('*').order('created_at'),
+      supabase.from('projects').select('*').order('sort_order').order('created_at'),
+      supabase.from('skills').select('*').order('sort_order'),
+      supabase.from('certifications').select('*').order('sort_order').order('created_at'),
       supabase.from('about').select('*').single(),
     ])
     if (p.data) setProjects(p.data)
@@ -69,122 +87,208 @@ export default function Dashboard() {
     if (c.data) setCerts(c.data)
     if (ab.data) {
       setAboutId(ab.data.id)
-      setAHeading(ab.data.heading || '')
-      setAPara1(ab.data.paragraph1 || '')
-      setAPara2(ab.data.paragraph2 || '')
+      setAHeading(ab.data.heading || ''); setAP1(ab.data.paragraph1 || ''); setAP2(ab.data.paragraph2 || '')
+      setATagline(ab.data.tagline || ''); setAGithub(ab.data.github_url || '')
+      setALinkedin(ab.data.linkedin_url || ''); setAEmail(ab.data.email || ''); setACvUrl(ab.data.cv_url || '')
     }
   }
 
   const notify = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
   const logout = async () => { await supabase.auth.signOut(); router.push('/admin') }
 
-  const addProject = async () => {
+  // ---- PROJECTS ----
+  const clearProjectForm = () => { setEditId(null); setPTitle(''); setPDesc(''); setPTags(''); setPGithub(''); setPYear(''); setPStatus('In Progress') }
+
+  const saveProject = async () => {
     if (!pTitle) return
-    const tags = pTags.split(',').map((t) => t.trim()).filter(Boolean)
-    const { error } = await supabase.from('projects').insert({ title: pTitle, description: pDesc, tags, github_url: pGithub, status: pStatus })
-    if (!error) { notify('Project added!'); setPTitle(''); setPDesc(''); setPTags(''); setPGithub(''); loadAll() }
+    const tags = pTags.split(',').map(t => t.trim()).filter(Boolean)
+    const payload = { title: pTitle, description: pDesc, tags, github_url: pGithub, year: pYear, status: pStatus }
+    if (editId) {
+      await supabase.from('projects').update(payload).eq('id', editId)
+      notify('Project updated')
+    } else {
+      await supabase.from('projects').insert({ ...payload, sort_order: projects.length })
+      notify('Project added')
+    }
+    clearProjectForm(); loadAll()
   }
 
-  const deleteProject = async (id: string) => {
-    await supabase.from('projects').delete().eq('id', id); loadAll()
+  const editProject = (p: any) => {
+    setEditId(p.id); setPTitle(p.title || ''); setPDesc(p.description || '')
+    setPTags((p.tags || []).join(', ')); setPGithub(p.github_url || '')
+    setPYear(p.year || ''); setPStatus(p.status || 'In Progress')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const toggleStatus = async (id: string, current: string) => {
-    const next = current === 'Published' ? 'In Progress' : 'Published'
-    await supabase.from('projects').update({ status: next }).eq('id', id); loadAll()
+  const deleteProject = async (id: string) => { await supabase.from('projects').delete().eq('id', id); loadAll() }
+  const toggleStatus = async (id: string, cur: string) => {
+    await supabase.from('projects').update({ status: cur === 'Published' ? 'In Progress' : 'Published' }).eq('id', id); loadAll()
   }
 
-  const addSkill = async () => {
-    if (!sName) return
-    const { error } = await supabase.from('skills').insert({ name: sName, category: sCategory })
-    if (!error) { notify('Skill added!'); setSName(''); loadAll() }
+  // ---- REORDER (generic) ----
+  const move = async (table: string, list: any[], index: number, dir: -1 | 1) => {
+    const target = index + dir
+    if (target < 0 || target >= list.length) return
+    const a = list[index], b = list[target]
+    await Promise.all([
+      supabase.from(table).update({ sort_order: target }).eq('id', a.id),
+      supabase.from(table).update({ sort_order: index }).eq('id', b.id),
+    ])
+    loadAll()
   }
 
-  const deleteSkill = async (id: string) => {
-    await supabase.from('skills').delete().eq('id', id); loadAll()
+  // ---- SKILLS ----
+  const clearSkillForm = () => { setEditId(null); setSkName(''); setSkCategory('Geospatial'); setSkFeatured(false) }
+
+  const saveSkill = async () => {
+    if (!skName) return
+    const payload = { name: skName, category: skCategory, featured: skFeatured }
+    if (editId) {
+      await supabase.from('skills').update(payload).eq('id', editId); notify('Skill updated')
+    } else {
+      await supabase.from('skills').insert({ ...payload, sort_order: skills.length }); notify('Skill added')
+    }
+    clearSkillForm(); loadAll()
   }
 
-  const addCert = async () => {
+  const editSkill = (sk: any) => {
+    setEditId(sk.id); setSkName(sk.name); setSkCategory(sk.category); setSkFeatured(!!sk.featured)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const deleteSkill = async (id: string) => { await supabase.from('skills').delete().eq('id', id); loadAll() }
+  const toggleFeatured = async (id: string, cur: boolean) => {
+    await supabase.from('skills').update({ featured: !cur }).eq('id', id); loadAll()
+  }
+
+  // ---- CERTS ----
+  const clearCertForm = () => { setEditId(null); setCTitle(''); setCIssuer(''); setCYear('') }
+
+  const saveCert = async () => {
     if (!cTitle) return
-    const { error } = await supabase.from('certifications').insert({ title: cTitle, issuer: cIssuer, year: cYear })
-    if (!error) { notify('Certification added!'); setCTitle(''); setCIssuer(''); setCYear(''); loadAll() }
+    const payload = { title: cTitle, issuer: cIssuer, year: cYear }
+    if (editId) {
+      await supabase.from('certifications').update(payload).eq('id', editId); notify('Certification updated')
+    } else {
+      await supabase.from('certifications').insert({ ...payload, sort_order: certs.length }); notify('Certification added')
+    }
+    clearCertForm(); loadAll()
   }
 
-  const deleteCert = async (id: string) => {
-    await supabase.from('certifications').delete().eq('id', id); loadAll()
+  const editCert = (c: any) => {
+    setEditId(c.id); setCTitle(c.title); setCIssuer(c.issuer || ''); setCYear(c.year || '')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const deleteCert = async (id: string) => { await supabase.from('certifications').delete().eq('id', id); loadAll() }
+
+  // ---- ABOUT ----
   const saveAbout = async () => {
-    await supabase.from('about').update({ heading: aHeading, paragraph1: aPara1, paragraph2: aPara2 }).eq('id', aboutId)
-    notify('About section updated!')
+    await supabase.from('about').update({
+      heading: aHeading, paragraph1: aP1, paragraph2: aP2, tagline: aTagline,
+      github_url: aGithub, linkedin_url: aLinkedin, email: aEmail,
+    }).eq('id', aboutId)
+    notify('About & links saved')
   }
 
-  const CATEGORIES = ['Core', 'Geospatial', 'Remote Sensing', 'Data Science', 'Data Engineering', 'Cloud', 'GeoAI']
-  const TAB_LABELS: Record<string, string> = { projects: 'Projects', skills: 'Skills', certs: 'Certs', about: 'About' }
+  // ---- CV UPLOAD ----
+  const uploadCV = async (file: File) => {
+    setUploading(true)
+    const path = 'Yazeed_Almuhlaki_CV.pdf'
+    const { error } = await supabase.storage.from('cv').upload(path, file, { upsert: true, contentType: 'application/pdf' })
+    if (error) { notify('Upload failed: ' + error.message); setUploading(false); return }
+    const { data } = supabase.storage.from('cv').getPublicUrl(path)
+    const url = data.publicUrl + '?v=' + Date.now()
+    await supabase.from('about').update({ cv_url: url }).eq('id', aboutId)
+    setACvUrl(url); notify('CV uploaded'); setUploading(false)
+  }
+
+  const featuredCount = skills.filter(sk => sk.featured).length
+
+  const switchTab = (t: typeof TABS[number]) => {
+    setTab(t); setEditId(null)
+    clearProjectForm(); clearSkillForm(); clearCertForm()
+  }
 
   return (
     <div style={s.page}>
-      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+      <div style={s.wrap}>
 
         {/* Header */}
         <div style={s.header}>
           <div>
-            <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.65rem', letterSpacing: '0.3em', color: '#00ffc8', marginBottom: '0.4rem' }}>ADMIN DASHBOARD</div>
+            <div style={s.eyebrow}>Admin</div>
             <div style={s.title}>Portfolio Manager</div>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' as const }}>
-            <a href="/" target="_blank" style={{ ...s.btnSecondary, textDecoration: 'none', display: 'inline-block' }}>View Site</a>
-            <button onClick={logout} style={s.btnSecondary}>Logout</button>
+          <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <a href="/" target="_blank" style={{ ...s.btnGhost, textDecoration: 'none', display: 'inline-block' }}>View Site</a>
+            <button onClick={logout} style={s.btnGhost}>Logout</button>
           </div>
         </div>
 
-        {/* Success message */}
-        {msg && <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.75rem', color: '#00ffc8', padding: '0.75rem 1rem', border: '1px solid rgba(0,255,200,0.2)', background: 'rgba(0,255,200,0.05)', marginBottom: '2rem' }}>{msg}</div>}
+        {msg && (
+          <div style={{ fontSize: '0.75rem', color: '#fff', padding: '0.7rem 1rem', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', marginBottom: '1.5rem' }}>
+            {msg}
+          </div>
+        )}
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '2.5rem', flexWrap: 'wrap' as const }}>
-          {(['projects', 'skills', 'certs', 'about'] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} style={{ ...s.btnSecondary, color: tab === t ? '#00ffc8' : 'rgba(255,255,255,0.4)', borderColor: tab === t ? '#00ffc8' : 'rgba(255,255,255,0.1)' }}>
-              {TAB_LABELS[t]}
-            </button>
+        <div style={{ display: 'flex', gap: '0.35rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+          {TABS.map((t) => (
+            <button key={t} onClick={() => switchTab(t)} style={{
+              ...s.btnGhost,
+              background: tab === t ? '#fff' : 'transparent',
+              color: tab === t ? '#0f0f0f' : 'rgba(255,255,255,0.4)',
+              border: tab === t ? 'none' : '1px solid rgba(255,255,255,0.12)',
+              fontWeight: tab === t ? 600 : 400,
+            }}>{TAB_LABELS[t]}</button>
           ))}
         </div>
 
-        {/* PROJECTS TAB */}
+        {/* ---------- PROJECTS ---------- */}
         {tab === 'projects' && (
-          <div>
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Add New Project</div>
+          <div className="admin-col">
+            <div>
+              <div style={s.sectionTitle}>{editId ? 'Edit Project' : 'Add New Project'}</div>
               <label style={s.label}>Title</label>
-              <input style={s.input} value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Project title" />
+              <input style={s.input} value={pTitle} onChange={e => setPTitle(e.target.value)} placeholder="Project title" />
               <label style={s.label}>Description</label>
-              <textarea style={{ ...s.input, minHeight: '100px', resize: 'vertical' }} value={pDesc} onChange={(e) => setPDesc(e.target.value)} placeholder="Project description" />
+              <textarea style={{ ...s.input, minHeight: '100px', resize: 'vertical' }} value={pDesc} onChange={e => setPDesc(e.target.value)} placeholder="Brief description" />
               <label style={s.label}>Tags (comma separated)</label>
-              <input style={s.input} value={pTags} onChange={(e) => setPTags(e.target.value)} placeholder="Python, GeoAI, Remote Sensing" />
+              <input style={s.input} value={pTags} onChange={e => setPTags(e.target.value)} placeholder="Python, GeoAI, Remote Sensing" />
+              <label style={s.label}>Year</label>
+              <input style={s.input} value={pYear} onChange={e => setPYear(e.target.value)} placeholder="2026" />
               <label style={s.label}>GitHub URL</label>
-              <input style={s.input} value={pGithub} onChange={(e) => setPGithub(e.target.value)} placeholder="https://github.com/..." />
+              <input style={s.input} value={pGithub} onChange={e => setPGithub(e.target.value)} placeholder="https://github.com/..." />
               <label style={s.label}>Status</label>
-              <select style={{ ...s.input, cursor: 'pointer' }} value={pStatus} onChange={(e) => setPStatus(e.target.value)}>
+              <select style={{ ...s.input, cursor: 'pointer' }} value={pStatus} onChange={e => setPStatus(e.target.value)}>
                 <option>In Progress</option>
                 <option>Published</option>
               </select>
-              <button style={s.btn} onClick={addProject}>Add Project</button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button style={s.btn} onClick={saveProject}>{editId ? 'Save Changes' : 'Add Project'}</button>
+                {editId && <button style={s.btnGhost} onClick={clearProjectForm}>Cancel</button>}
+              </div>
             </div>
 
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Existing Projects ({projects.length})</div>
-              {projects.map((p) => (
+            <div>
+              <div style={s.sectionTitle}>Existing ({projects.length})</div>
+              {projects.map((p, i) => (
                 <div key={p.id} style={s.card}>
-                  <div style={s.row}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', color: '#fff', marginBottom: '0.4rem' }}>{p.title}</div>
-                      <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.7rem', color: p.status === 'Published' ? '#00ffc8' : '#a78bfa', marginBottom: '0.4rem' }}>{p.status}</div>
-                      <div style={{ flexWrap: 'wrap' as const }}>{(p.tags || []).map((t: string) => <span key={t} style={s.tag}>{t}</span>)}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ fontFamily: SERIF, fontSize: '0.95rem', color: 'rgba(255,255,255,0.85)' }}>{p.title}</div>
+                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                      <button style={s.btnTiny} onClick={() => move('projects', projects, i, -1)} disabled={i === 0}>↑</button>
+                      <button style={s.btnTiny} onClick={() => move('projects', projects, i, 1)} disabled={i === projects.length - 1}>↓</button>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0, flexWrap: 'wrap' as const }}>
-                      <button style={s.btnSecondary} onClick={() => toggleStatus(p.id, p.status)}>Toggle</button>
-                      <button style={s.btnDanger} onClick={() => deleteProject(p.id)}>Delete</button>
-                    </div>
+                  </div>
+                  <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginBottom: '0.6rem' }}>
+                    {p.status} {p.year ? '· ' + p.year : ''}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                    <button style={s.btnTiny} onClick={() => editProject(p)}>Edit</button>
+                    <button style={s.btnTiny} onClick={() => toggleStatus(p.id, p.status)}>Toggle Status</button>
+                    <button style={s.btnDanger} onClick={() => deleteProject(p.id)}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -192,74 +296,91 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* SKILLS TAB */}
+        {/* ---------- SKILLS ---------- */}
         {tab === 'skills' && (
-          <div>
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Add New Skill</div>
+          <div className="admin-col">
+            <div>
+              <div style={s.sectionTitle}>{editId ? 'Edit Skill' : 'Add New Skill'}</div>
               <label style={s.label}>Skill Name</label>
-              <input style={s.input} value={sName} onChange={(e) => setSName(e.target.value)} placeholder="e.g. PyTorch" />
+              <input style={s.input} value={skName} onChange={e => setSkName(e.target.value)} placeholder="e.g. PyTorch" />
               <label style={s.label}>Category</label>
-              <select style={{ ...s.input, cursor: 'pointer' }} value={sCategory} onChange={(e) => setSCategory(e.target.value)}>
-                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+              <select style={{ ...s.input, cursor: 'pointer' }} value={skCategory} onChange={e => setSkCategory(e.target.value)}>
+                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
-              <button style={s.btn} onClick={addSkill}>Add Skill</button>
-            </div>
-
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Existing Skills ({skills.length})</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {skills.map((sk) => (
-                  <div key={sk.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', padding: '0.5rem 0.75rem' }}>
-                    <span style={{ fontFamily: "'Courier New', monospace", fontSize: '0.75rem', color: '#fff' }}>{sk.name}</span>
-                    <span style={{ fontFamily: "'Courier New', monospace", fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>{sk.category}</span>
-                    <button onClick={() => deleteSkill(sk.id)} style={{ background: 'none', border: 'none', color: '#f472b6', cursor: 'pointer', fontSize: '0.7rem', padding: '0 4px' }}>x</button>
-                  </div>
-                ))}
+              <label style={{ ...s.label, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '1rem' }}>
+                <input type="checkbox" checked={skFeatured} onChange={e => setSkFeatured(e.target.checked)} style={{ cursor: 'pointer' }} />
+                Featured — show in hero sidebar
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button style={s.btn} onClick={saveSkill}>{editId ? 'Save Changes' : 'Add Skill'}</button>
+                {editId && <button style={s.btnGhost} onClick={clearSkillForm}>Cancel</button>}
+              </div>
+              <div style={{ fontSize: '0.68rem', color: featuredCount > 6 ? '#f472b6' : 'rgba(255,255,255,0.3)', marginTop: '1rem' }}>
+                {featuredCount} featured — hero shows the first 6
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ABOUT TAB */}
-        {tab === 'about' && (
-          <div>
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Edit About Section</div>
-              <label style={s.label}>Heading</label>
-              <input style={s.input} value={aHeading} onChange={(e) => setAHeading(e.target.value)} placeholder="Your main heading" />
-              <label style={s.label}>Paragraph 1</label>
-              <textarea style={{ ...s.input, minHeight: '120px', resize: 'vertical' }} value={aPara1} onChange={(e) => setAPara1(e.target.value)} placeholder="First paragraph" />
-              <label style={s.label}>Paragraph 2</label>
-              <textarea style={{ ...s.input, minHeight: '120px', resize: 'vertical' }} value={aPara2} onChange={(e) => setAPara2(e.target.value)} placeholder="Second paragraph" />
-              <button style={s.btn} onClick={saveAbout}>Save About</button>
-            </div>
-          </div>
-        )}
-
-        {/* CERTS TAB */}
-        {tab === 'certs' && (
-          <div>
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Add New Certification</div>
-              <label style={s.label}>Title</label>
-              <input style={s.input} value={cTitle} onChange={(e) => setCTitle(e.target.value)} placeholder="Certification title" />
-              <label style={s.label}>Issuer</label>
-              <input style={s.input} value={cIssuer} onChange={(e) => setCIssuer(e.target.value)} placeholder="e.g. Google, NASA, Coursera" />
-              <label style={s.label}>Year</label>
-              <input style={s.input} value={cYear} onChange={(e) => setCYear(e.target.value)} placeholder="2025" />
-              <button style={s.btn} onClick={addCert}>Add Certification</button>
-            </div>
-
-            <div style={s.section}>
-              <div style={s.sectionTitle}>Existing Certifications ({certs.length})</div>
-              {certs.map((c) => (
-                <div key={c.id} style={s.card}>
-                  <div style={s.row}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', color: '#fff', marginBottom: '4px' }}>{c.title}</div>
-                      <div style={{ fontFamily: "'Courier New', monospace", fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>{c.issuer} · {c.year}</div>
+            <div>
+              <div style={s.sectionTitle}>Existing ({skills.length})</div>
+              {skills.map((sk, i) => (
+                <div key={sk.id} style={{ ...s.card, padding: '0.7rem 0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div>
+                      <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>{sk.name}</span>
+                      {sk.featured && <span style={{ fontSize: '0.55rem', color: '#0f0f0f', background: '#fff', padding: '2px 6px', marginLeft: '0.5rem', letterSpacing: '0.08em' }}>FEATURED</span>}
+                      <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', marginTop: '2px' }}>{sk.category}</div>
                     </div>
+                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                      <button style={s.btnTiny} onClick={() => move('skills', skills, i, -1)} disabled={i === 0}>↑</button>
+                      <button style={s.btnTiny} onClick={() => move('skills', skills, i, 1)} disabled={i === skills.length - 1}>↓</button>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                    <button style={s.btnTiny} onClick={() => editSkill(sk)}>Edit</button>
+                    <button style={s.btnTiny} onClick={() => toggleFeatured(sk.id, sk.featured)}>
+                      {sk.featured ? 'Unfeature' : 'Feature'}
+                    </button>
+                    <button style={s.btnDanger} onClick={() => deleteSkill(sk.id)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ---------- CERTS ---------- */}
+        {tab === 'certs' && (
+          <div className="admin-col">
+            <div>
+              <div style={s.sectionTitle}>{editId ? 'Edit Certification' : 'Add New Certification'}</div>
+              <label style={s.label}>Title</label>
+              <input style={s.input} value={cTitle} onChange={e => setCTitle(e.target.value)} placeholder="Certification title" />
+              <label style={s.label}>Issuer</label>
+              <input style={s.input} value={cIssuer} onChange={e => setCIssuer(e.target.value)} placeholder="e.g. NASA, Google, Tuwaiq" />
+              <label style={s.label}>Year</label>
+              <input style={s.input} value={cYear} onChange={e => setCYear(e.target.value)} placeholder="2026" />
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button style={s.btn} onClick={saveCert}>{editId ? 'Save Changes' : 'Add Certification'}</button>
+                {editId && <button style={s.btnGhost} onClick={clearCertForm}>Cancel</button>}
+              </div>
+            </div>
+
+            <div>
+              <div style={s.sectionTitle}>Existing ({certs.length})</div>
+              {certs.map((c, i) => (
+                <div key={c.id} style={s.card}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div>
+                      <div style={{ fontFamily: SERIF, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)' }}>{c.title}</div>
+                      <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginTop: '3px' }}>{c.issuer} · {c.year}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                      <button style={s.btnTiny} onClick={() => move('certifications', certs, i, -1)} disabled={i === 0}>↑</button>
+                      <button style={s.btnTiny} onClick={() => move('certifications', certs, i, 1)} disabled={i === certs.length - 1}>↓</button>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.35rem' }}>
+                    <button style={s.btnTiny} onClick={() => editCert(c)}>Edit</button>
                     <button style={s.btnDanger} onClick={() => deleteCert(c.id)}>Delete</button>
                   </div>
                 </div>
@@ -268,7 +389,67 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ---------- ABOUT & LINKS ---------- */}
+        {tab === 'about' && (
+          <div style={{ maxWidth: '640px' }}>
+            <div style={s.sectionTitle}>Hero & About</div>
+            <label style={s.label}>Hero Tagline (above your name)</label>
+            <input style={s.input} value={aTagline} onChange={e => setATagline(e.target.value)} placeholder="Spatial Data Scientist · Riyadh" />
+            <label style={s.label}>Hero Paragraph (under your name)</label>
+            <textarea style={{ ...s.input, minHeight: '90px', resize: 'vertical' }} value={aP1} onChange={e => setAP1(e.target.value)} />
+            <label style={s.label}>About Heading</label>
+            <textarea style={{ ...s.input, minHeight: '70px', resize: 'vertical' }} value={aHeading} onChange={e => setAHeading(e.target.value)} />
+            <label style={s.label}>About Paragraph</label>
+            <textarea style={{ ...s.input, minHeight: '110px', resize: 'vertical' }} value={aP2} onChange={e => setAP2(e.target.value)} />
+
+            <div style={{ ...s.sectionTitle, marginTop: '2rem' }}>Contact Links</div>
+            <label style={s.label}>GitHub URL</label>
+            <input style={s.input} value={aGithub} onChange={e => setAGithub(e.target.value)} placeholder="https://github.com/..." />
+            <label style={s.label}>LinkedIn URL</label>
+            <input style={s.input} value={aLinkedin} onChange={e => setALinkedin(e.target.value)} placeholder="https://linkedin.com/in/..." />
+            <label style={s.label}>Email</label>
+            <input style={s.input} value={aEmail} onChange={e => setAEmail(e.target.value)} placeholder="you@domain.com" />
+
+            <button style={s.btn} onClick={saveAbout}>Save All</button>
+          </div>
+        )}
+
+        {/* ---------- CV ---------- */}
+        {tab === 'cv' && (
+          <div style={{ maxWidth: '520px' }}>
+            <div style={s.sectionTitle}>CV / Resume</div>
+            <div style={{ ...s.card, padding: '1.5rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 300, lineHeight: 1.7, marginBottom: '1.25rem' }}>
+                Upload a new PDF to replace the current CV. The download button on your site updates immediately.
+              </div>
+              <label style={{ ...s.btn, display: 'inline-block', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.5 : 1 }}>
+                {uploading ? 'Uploading...' : 'Choose PDF'}
+                <input
+                  type="file" accept="application/pdf" style={{ display: 'none' }} disabled={uploading}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCV(f); e.target.value = '' }}
+                />
+              </label>
+              {aCvUrl && (
+                <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ ...s.label, marginBottom: '0.5rem' }}>Current file</div>
+                  <a href={aCvUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', wordBreak: 'break-all', textDecoration: 'underline' }}>
+                    View current CV
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        @media (max-width: 760px) { .admin-col { grid-template-columns: 1fr; gap: 2.5rem; } }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.18); }
+        select option { background: #161616; color: #fff; }
+        button:disabled { opacity: 0.25; cursor: not-allowed; }
+      ` }} />
     </div>
   )
 }

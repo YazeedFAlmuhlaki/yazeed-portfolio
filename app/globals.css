@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -10,25 +12,17 @@ html {
 
 body {
   background: #ffffff;
-  color: #111111;
-  font-family: Georgia, serif;
+  color: #0a0a0a;
+  font-family: 'Outfit', -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes fadeup {
-  from { opacity: 0; transform: translateY(32px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+/* Reveal on scroll */
 .reveal {
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .reveal.visible {
@@ -36,15 +30,10 @@ body {
   transform: translateY(0);
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
+/* Nav */
 .nav-desktop {
   display: flex;
-  gap: 2rem;
+  gap: 2.25rem;
   align-items: center;
 }
 
@@ -54,23 +43,53 @@ body {
 
 .mobile-menu {
   position: fixed;
-  top: 56px;
+  top: 58px;
   left: 0;
   right: 0;
   z-index: 99;
-  background: rgba(5, 10, 20, 0.97);
-  border-bottom: 1px solid rgba(0, 255, 200, 0.1);
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid #f0f0f0;
   backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 1.5rem 0 2rem;
+  gap: 1.1rem;
+}
+
+/* Hero layout */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 4rem;
+  align-items: start;
+  width: 100%;
+}
+
+.hero-side {
+  padding-top: 0.5rem;
+}
+
+/* Work grid */
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
+}
+
+/* Mobile */
+@media (max-width: 800px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .work-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
   .nav-desktop { display: none !important; }
   .nav-hamburger { display: flex !important; }
-  .projects-grid { grid-template-columns: 1fr !important; }
-  .section-pad { padding: 4rem 1.25rem !important; }
+  .sec { padding: 4rem 1.5rem !important; }
 }
