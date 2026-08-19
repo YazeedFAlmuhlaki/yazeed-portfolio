@@ -14,6 +14,9 @@ const T = {
 const SERIF = "'Playfair Display', Georgia, serif"
 const SANS = "'Outfit', -apple-system, system-ui, sans-serif"
 
+const SKILL_GROUPS = ['Data Engineering', 'Cloud and Storage', 'Geospatial Engineering']
+const PROJECT_CATEGORIES = ['Data Engineering', 'Analytics and Spatial Science']
+
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -34,7 +37,7 @@ export default function Home() {
   const [skills, setSkills] = useState<any[]>([])
   const [certs, setCerts] = useState<any[]>([])
   const [about, setAbout] = useState<any>(null)
-  const [activeCategory, setActiveCategory] = useState('All')
+  const [activeCategory, setActiveCategory] = useState('Data Engineering')
   const [activeNav, setActiveNav] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -71,14 +74,35 @@ export default function Home() {
     setActiveNav(id); setMenuOpen(false)
   }
 
-  const featured = skills.filter((s) => s.featured).slice(0, 6)
-  const categories = ['All', ...Array.from(new Set(skills.map((s) => s.category)))]
-  const filtered = activeCategory === 'All' ? skills : skills.filter((s) => s.category === activeCategory)
+  const featured = skills.filter((sk) => sk.featured).slice(0, 6)
+
+  // Group skills by the three fixed groups, in order
+  const groupedSkills = SKILL_GROUPS.map((g) => ({
+    group: g,
+    items: skills.filter((sk) => sk.category === g),
+  })).filter((g) => g.items.length > 0)
+
+  // Any skill not in the three groups goes last under "Other"
+  const otherSkills = skills.filter((sk) => !SKILL_GROUPS.includes(sk.category))
+
+  const deCount = projects.filter((p) => p.category === 'Data Engineering').length
+  const showFilter = deCount >= 3
+  const visibleProjects = showFilter
+    ? projects.filter((p) => p.category === activeCategory)
+    : projects
+
   const NAV = ['About', 'Skills', 'Work', 'Certifications', 'Contact']
 
   const label = (txt: string) => (
     <div style={{ fontFamily: SANS, fontSize: '0.65rem', color: T.faint, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '1.5rem', fontWeight: 400 }}>{txt}</div>
   )
+
+  const fieldRow = (name: string, value: string) => value ? (
+    <div style={{ marginBottom: '0.75rem' }}>
+      <div style={{ fontFamily: SANS, fontSize: '0.6rem', color: T.faint, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{name}</div>
+      <div style={{ fontFamily: SANS, fontWeight: 300, fontSize: '0.85rem', color: T.muted, lineHeight: 1.7 }}>{value}</div>
+    </div>
+  ) : null
 
   return (
     <div style={{ minHeight: '100vh', background: T.bg, color: T.text }}>
@@ -136,12 +160,12 @@ export default function Home() {
         <div className="hero-grid">
           <div>
             <div style={{ fontFamily: SANS, fontSize: '0.7rem', color: T.faint, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
-              {about?.tagline || 'Spatial Data Scientist'}
+              {about?.tagline || 'Data Engineer'}
             </div>
             <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(3rem, 8vw, 5.5rem)', fontWeight: 400, lineHeight: 0.98, margin: '0 0 0.2rem', letterSpacing: '-0.01em' }}>Yazeed</h1>
             <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(3rem, 8vw, 5.5rem)', fontWeight: 400, fontStyle: 'italic', lineHeight: 0.98, margin: '0 0 2.5rem', letterSpacing: '-0.01em' }}>Almuhlaki</h1>
             <p style={{ fontFamily: SANS, fontWeight: 300, fontSize: '1rem', color: T.muted, lineHeight: 1.85, maxWidth: '420px', margin: '0 0 2.5rem' }}>
-              {about?.paragraph1 || ''}
+              {about?.paragraph1 || 'Pipelines, data modeling, and quality gates for national-scale Saudi data.'}
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <button onClick={() => scrollTo('Work')} style={{
@@ -160,15 +184,14 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Featured skills sidebar */}
           {featured.length > 0 && (
             <div className="hero-side">
               <div style={{ fontFamily: SANS, fontSize: '0.6rem', color: T.faint, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '1rem' }}>Core Skills</div>
-              {featured.map((s) => (
-                <div key={s.id} style={{
+              {featured.map((sk) => (
+                <div key={sk.id} style={{
                   padding: '0.6rem 0', borderBottom: '1px solid ' + T.border,
                   fontFamily: SANS, fontWeight: 300, fontSize: '0.85rem', color: T.text,
-                }}>{s.name}</div>
+                }}>{sk.name}</div>
               ))}
             </div>
           )}
@@ -188,31 +211,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SKILLS */}
+      {/* SKILLS — grouped */}
       <section id="Skills" className="sec" style={{ maxWidth: '1080px', margin: '0 auto', padding: '6rem 2rem', borderTop: '1px solid ' + T.border }}>
         <div ref={skillsRef} className="reveal">
           {label('Skills')}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-            {categories.map((c) => (
-              <button key={c} onClick={() => setActiveCategory(c)} style={{
-                background: activeCategory === c ? T.text : 'transparent',
-                color: activeCategory === c ? T.bg : T.muted,
-                border: '1px solid ' + (activeCategory === c ? T.text : T.border),
-                fontFamily: SANS, fontSize: '0.62rem', letterSpacing: '0.1em',
-                padding: '6px 14px', cursor: 'pointer', textTransform: 'uppercase',
-                transition: 'all 0.2s',
-              }}>{c}</button>
-            ))}
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {filtered.map((s) => (
-              <span key={s.id} style={{
-                fontFamily: SANS, fontWeight: 300, fontSize: '0.8rem',
-                color: T.text, background: T.tagBg, border: '1px solid ' + T.border,
-                padding: '7px 16px',
-              }}>{s.name}</span>
-            ))}
-          </div>
+          {groupedSkills.map((g, gi) => (
+            <div key={g.group} style={{ marginBottom: gi === groupedSkills.length - 1 && otherSkills.length === 0 ? 0 : '2.5rem' }}>
+              <div style={{
+                fontFamily: SERIF, fontSize: '1.15rem', fontWeight: 400,
+                marginBottom: '1rem', paddingBottom: '0.5rem',
+                borderBottom: '1px solid ' + T.border,
+              }}>{g.group}</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {g.items.map((sk) => (
+                  <span key={sk.id} style={{
+                    fontFamily: SANS, fontWeight: 300, fontSize: '0.8rem',
+                    color: T.text, background: T.tagBg, border: '1px solid ' + T.border,
+                    padding: '7px 16px',
+                  }}>{sk.name}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+          {otherSkills.length > 0 && (
+            <div>
+              <div style={{
+                fontFamily: SERIF, fontSize: '1.15rem', fontWeight: 400,
+                marginBottom: '1rem', paddingBottom: '0.5rem',
+                borderBottom: '1px solid ' + T.border,
+              }}>Other</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {otherSkills.map((sk) => (
+                  <span key={sk.id} style={{
+                    fontFamily: SANS, fontWeight: 300, fontSize: '0.8rem',
+                    color: T.text, background: T.tagBg, border: '1px solid ' + T.border,
+                    padding: '7px 16px',
+                  }}>{sk.name}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -220,15 +258,47 @@ export default function Home() {
       <section id="Work" className="sec" style={{ maxWidth: '1080px', margin: '0 auto', padding: '6rem 2rem', borderTop: '1px solid ' + T.border }}>
         <div ref={projectsRef} className="reveal">
           {label('Selected Work')}
+
+          {showFilter && (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+              {PROJECT_CATEGORIES.map((c) => (
+                <button key={c} onClick={() => setActiveCategory(c)} style={{
+                  background: activeCategory === c ? T.text : 'transparent',
+                  color: activeCategory === c ? T.bg : T.muted,
+                  border: '1px solid ' + (activeCategory === c ? T.text : T.border),
+                  fontFamily: SANS, fontSize: '0.62rem', letterSpacing: '0.1em',
+                  padding: '6px 14px', cursor: 'pointer', textTransform: 'uppercase',
+                  transition: 'all 0.2s',
+                }}>{c}</button>
+              ))}
+            </div>
+          )}
+
           <div className="work-grid">
-            {projects.map((p) => (
+            {visibleProjects.map((p) => (
               <div key={p.id} style={{ background: T.tagBg, border: '1px solid ' + T.border, padding: '1.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.6rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
                   <h3 style={{ fontFamily: SERIF, fontSize: '1.2rem', fontWeight: 400, margin: 0, lineHeight: 1.3 }}>{p.title}</h3>
                   {p.year && <span style={{ fontFamily: SANS, fontSize: '0.7rem', color: T.faint, flexShrink: 0 }}>{p.year}</span>}
                 </div>
-                <p style={{ fontFamily: SANS, fontWeight: 300, fontSize: '0.88rem', color: T.muted, lineHeight: 1.75, margin: '0 0 1.25rem' }}>{p.description}</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: p.github_url && p.github_url !== '#' ? '1.25rem' : 0 }}>
+
+                {p.diagram_url && (
+                  <img src={p.diagram_url} alt={p.title + ' architecture'} style={{
+                    width: '100%', display: 'block', marginBottom: '1.25rem',
+                    border: '1px solid ' + T.border, background: T.bg,
+                  }} />
+                )}
+
+                {fieldRow('Problem', p.problem)}
+                {fieldRow('Source', p.source)}
+                {fieldRow('Pipeline', p.pipeline)}
+                {fieldRow('Quality', p.quality)}
+
+                {!p.problem && !p.pipeline && p.description && (
+                  <p style={{ fontFamily: SANS, fontWeight: 300, fontSize: '0.88rem', color: T.muted, lineHeight: 1.75, margin: '0 0 1.25rem' }}>{p.description}</p>
+                )}
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', margin: '1.25rem 0' }}>
                   {(p.tags || []).map((t: string) => (
                     <span key={t} style={{
                       fontFamily: SANS, fontSize: '0.65rem', color: T.faint,
@@ -236,13 +306,20 @@ export default function Home() {
                     }}>{t}</span>
                   ))}
                 </div>
-                {p.github_url && p.github_url !== '#' && (
-                  <a href={p.github_url} target="_blank" rel="noreferrer" style={{
-                    fontFamily: SANS, fontSize: '0.68rem', letterSpacing: '0.12em',
-                    color: T.text, textDecoration: 'none', textTransform: 'uppercase',
-                    borderBottom: '1px solid ' + T.text, paddingBottom: '2px',
-                  }}>GitHub</a>
-                )}
+
+                <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
+                  {[
+                    { label: 'Repo', href: p.github_url },
+                    { label: 'Article', href: p.article_url },
+                    { label: 'Demo', href: p.demo_url },
+                  ].filter((l) => l.href && l.href !== '#').map((l) => (
+                    <a key={l.label} href={l.href} target="_blank" rel="noreferrer" style={{
+                      fontFamily: SANS, fontSize: '0.68rem', letterSpacing: '0.12em',
+                      color: T.text, textDecoration: 'none', textTransform: 'uppercase',
+                      borderBottom: '1px solid ' + T.text, paddingBottom: '2px',
+                    }}>{l.label}</a>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -275,8 +352,8 @@ export default function Home() {
           <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 400, fontStyle: 'italic', margin: '0 0 1.5rem' }}>
             Let&apos;s connect.
           </h2>
-          <p style={{ fontFamily: SANS, fontWeight: 300, fontSize: '1rem', color: T.muted, lineHeight: 1.85, maxWidth: '480px', margin: '0 0 2.5rem' }}>
-            Open to research collaborations, internships, and GeoAI projects that push the boundaries of what location data can do.
+          <p style={{ fontFamily: SANS, fontWeight: 300, fontSize: '1rem', color: T.muted, lineHeight: 1.85, maxWidth: '520px', margin: '0 0 2.5rem' }}>
+            Open to data engineering internships and roles in Riyadh, and to work where location data has to be moved, modeled, and trusted.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {[

@@ -20,10 +20,10 @@ const s = {
   btnDanger: { background: 'transparent', color: '#f472b6', border: '1px solid rgba(244,114,182,0.2)', padding: '3px 8px', fontFamily: SANS, fontSize: '0.58rem', letterSpacing: '0.08em', textTransform: 'uppercase' as const, cursor: 'pointer' },
   card: { background: '#161616', border: '1px solid rgba(255,255,255,0.06)', padding: '1rem', marginBottom: '0.6rem' },
   sectionTitle: { fontSize: '0.62rem', letterSpacing: '0.22em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' as const, marginBottom: '1rem' },
-  col: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' },
 }
 
-const CATEGORIES = ['Core', 'Geospatial', 'Remote Sensing', 'Data Science', 'Data Engineering', 'Cloud', 'GeoAI']
+const SKILL_CATEGORIES = ['Data Engineering', 'Cloud and Storage', 'Geospatial Engineering']
+const PROJECT_CATEGORIES = ['Data Engineering', 'Analytics and Spatial Science']
 const TABS = ['projects', 'skills', 'certs', 'about', 'cv'] as const
 const TAB_LABELS: Record<string, string> = { projects: 'Projects', skills: 'Skills', certs: 'Certs', about: 'About & Links', cv: 'CV' }
 
@@ -34,21 +34,26 @@ export default function Dashboard() {
   const [skills, setSkills] = useState<any[]>([])
   const [certs, setCerts] = useState<any[]>([])
   const [msg, setMsg] = useState('')
-
-  // Editing state
   const [editId, setEditId] = useState<string | null>(null)
 
   // Project form
   const [pTitle, setPTitle] = useState('')
-  const [pDesc, setPDesc] = useState('')
+  const [pCategory, setPCategory] = useState('Data Engineering')
+  const [pProblem, setPProblem] = useState('')
+  const [pSource, setPSource] = useState('')
+  const [pPipeline, setPPipeline] = useState('')
+  const [pQuality, setPQuality] = useState('')
   const [pTags, setPTags] = useState('')
   const [pGithub, setPGithub] = useState('')
+  const [pArticle, setPArticle] = useState('')
+  const [pDemo, setPDemo] = useState('')
+  const [pDiagram, setPDiagram] = useState('')
   const [pYear, setPYear] = useState('')
   const [pStatus, setPStatus] = useState('In Progress')
 
   // Skill form
   const [skName, setSkName] = useState('')
-  const [skCategory, setSkCategory] = useState('Geospatial')
+  const [skCategory, setSkCategory] = useState('Data Engineering')
   const [skFeatured, setSkFeatured] = useState(false)
 
   // Cert form
@@ -67,7 +72,6 @@ export default function Dashboard() {
   const [aEmail, setAEmail] = useState('')
   const [aCvUrl, setACvUrl] = useState('')
 
-  // CV upload
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
@@ -96,26 +100,35 @@ export default function Dashboard() {
   const notify = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
   const logout = async () => { await supabase.auth.signOut(); router.push('/admin') }
 
-  // ---- PROJECTS ----
-  const clearProjectForm = () => { setEditId(null); setPTitle(''); setPDesc(''); setPTags(''); setPGithub(''); setPYear(''); setPStatus('In Progress') }
+  // PROJECTS
+  const clearProjectForm = () => {
+    setEditId(null); setPTitle(''); setPCategory('Data Engineering'); setPProblem(''); setPSource('')
+    setPPipeline(''); setPQuality(''); setPTags(''); setPGithub(''); setPArticle('')
+    setPDemo(''); setPDiagram(''); setPYear(''); setPStatus('In Progress')
+  }
 
   const saveProject = async () => {
     if (!pTitle) return
     const tags = pTags.split(',').map(t => t.trim()).filter(Boolean)
-    const payload = { title: pTitle, description: pDesc, tags, github_url: pGithub, year: pYear, status: pStatus }
+    const payload = {
+      title: pTitle, category: pCategory, problem: pProblem, source: pSource,
+      pipeline: pPipeline, quality: pQuality, tags, github_url: pGithub,
+      article_url: pArticle, demo_url: pDemo, diagram_url: pDiagram,
+      year: pYear, status: pStatus,
+    }
     if (editId) {
-      await supabase.from('projects').update(payload).eq('id', editId)
-      notify('Project updated')
+      await supabase.from('projects').update(payload).eq('id', editId); notify('Project updated')
     } else {
-      await supabase.from('projects').insert({ ...payload, sort_order: projects.length })
-      notify('Project added')
+      await supabase.from('projects').insert({ ...payload, sort_order: projects.length }); notify('Project added')
     }
     clearProjectForm(); loadAll()
   }
 
   const editProject = (p: any) => {
-    setEditId(p.id); setPTitle(p.title || ''); setPDesc(p.description || '')
-    setPTags((p.tags || []).join(', ')); setPGithub(p.github_url || '')
+    setEditId(p.id); setPTitle(p.title || ''); setPCategory(p.category || 'Data Engineering')
+    setPProblem(p.problem || ''); setPSource(p.source || ''); setPPipeline(p.pipeline || '')
+    setPQuality(p.quality || ''); setPTags((p.tags || []).join(', ')); setPGithub(p.github_url || '')
+    setPArticle(p.article_url || ''); setPDemo(p.demo_url || ''); setPDiagram(p.diagram_url || '')
     setPYear(p.year || ''); setPStatus(p.status || 'In Progress')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -125,7 +138,6 @@ export default function Dashboard() {
     await supabase.from('projects').update({ status: cur === 'Published' ? 'In Progress' : 'Published' }).eq('id', id); loadAll()
   }
 
-  // ---- REORDER (generic) ----
   const move = async (table: string, list: any[], index: number, dir: -1 | 1) => {
     const target = index + dir
     if (target < 0 || target >= list.length) return
@@ -137,17 +149,14 @@ export default function Dashboard() {
     loadAll()
   }
 
-  // ---- SKILLS ----
-  const clearSkillForm = () => { setEditId(null); setSkName(''); setSkCategory('Geospatial'); setSkFeatured(false) }
+  // SKILLS
+  const clearSkillForm = () => { setEditId(null); setSkName(''); setSkCategory('Data Engineering'); setSkFeatured(false) }
 
   const saveSkill = async () => {
     if (!skName) return
     const payload = { name: skName, category: skCategory, featured: skFeatured }
-    if (editId) {
-      await supabase.from('skills').update(payload).eq('id', editId); notify('Skill updated')
-    } else {
-      await supabase.from('skills').insert({ ...payload, sort_order: skills.length }); notify('Skill added')
-    }
+    if (editId) { await supabase.from('skills').update(payload).eq('id', editId); notify('Skill updated') }
+    else { await supabase.from('skills').insert({ ...payload, sort_order: skills.length }); notify('Skill added') }
     clearSkillForm(); loadAll()
   }
 
@@ -161,17 +170,14 @@ export default function Dashboard() {
     await supabase.from('skills').update({ featured: !cur }).eq('id', id); loadAll()
   }
 
-  // ---- CERTS ----
+  // CERTS
   const clearCertForm = () => { setEditId(null); setCTitle(''); setCIssuer(''); setCYear('') }
 
   const saveCert = async () => {
     if (!cTitle) return
     const payload = { title: cTitle, issuer: cIssuer, year: cYear }
-    if (editId) {
-      await supabase.from('certifications').update(payload).eq('id', editId); notify('Certification updated')
-    } else {
-      await supabase.from('certifications').insert({ ...payload, sort_order: certs.length }); notify('Certification added')
-    }
+    if (editId) { await supabase.from('certifications').update(payload).eq('id', editId); notify('Certification updated') }
+    else { await supabase.from('certifications').insert({ ...payload, sort_order: certs.length }); notify('Certification added') }
     clearCertForm(); loadAll()
   }
 
@@ -182,16 +188,14 @@ export default function Dashboard() {
 
   const deleteCert = async (id: string) => { await supabase.from('certifications').delete().eq('id', id); loadAll() }
 
-  // ---- ABOUT ----
   const saveAbout = async () => {
     await supabase.from('about').update({
       heading: aHeading, paragraph1: aP1, paragraph2: aP2, tagline: aTagline,
       github_url: aGithub, linkedin_url: aLinkedin, email: aEmail,
     }).eq('id', aboutId)
-    notify('About & links saved')
+    notify('About and links saved')
   }
 
-  // ---- CV UPLOAD ----
   const uploadCV = async (file: File) => {
     setUploading(true)
     const path = 'Yazeed_Almuhlaki_CV.pdf'
@@ -204,17 +208,16 @@ export default function Dashboard() {
   }
 
   const featuredCount = skills.filter(sk => sk.featured).length
+  const deCount = projects.filter(p => p.category === 'Data Engineering').length
 
   const switchTab = (t: typeof TABS[number]) => {
-    setTab(t); setEditId(null)
-    clearProjectForm(); clearSkillForm(); clearCertForm()
+    setTab(t); setEditId(null); clearProjectForm(); clearSkillForm(); clearCertForm()
   }
 
   return (
     <div style={s.page}>
       <div style={s.wrap}>
 
-        {/* Header */}
         <div style={s.header}>
           <div>
             <div style={s.eyebrow}>Admin</div>
@@ -232,7 +235,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Tabs */}
         <div style={{ display: 'flex', gap: '0.35rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
           {TABS.map((t) => (
             <button key={t} onClick={() => switchTab(t)} style={{
@@ -245,26 +247,56 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* ---------- PROJECTS ---------- */}
+        {/* PROJECTS */}
         {tab === 'projects' && (
           <div className="admin-col">
             <div>
               <div style={s.sectionTitle}>{editId ? 'Edit Project' : 'Add New Project'}</div>
+
               <label style={s.label}>Title</label>
               <input style={s.input} value={pTitle} onChange={e => setPTitle(e.target.value)} placeholder="Project title" />
-              <label style={s.label}>Description</label>
-              <textarea style={{ ...s.input, minHeight: '100px', resize: 'vertical' }} value={pDesc} onChange={e => setPDesc(e.target.value)} placeholder="Brief description" />
-              <label style={s.label}>Tags (comma separated)</label>
-              <input style={s.input} value={pTags} onChange={e => setPTags(e.target.value)} placeholder="Python, GeoAI, Remote Sensing" />
+
+              <label style={s.label}>Category</label>
+              <select style={{ ...s.input, cursor: 'pointer' }} value={pCategory} onChange={e => setPCategory(e.target.value)}>
+                {PROJECT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+              </select>
+
+              <label style={s.label}>Problem — one line, what needed to move</label>
+              <textarea style={{ ...s.input, minHeight: '60px', resize: 'vertical' }} value={pProblem} onChange={e => setPProblem(e.target.value)} />
+
+              <label style={s.label}>Source — where the data came from and how much</label>
+              <textarea style={{ ...s.input, minHeight: '60px', resize: 'vertical' }} value={pSource} onChange={e => setPSource(e.target.value)} />
+
+              <label style={s.label}>Pipeline — ingestion, storage, transforms, serving</label>
+              <textarea style={{ ...s.input, minHeight: '80px', resize: 'vertical' }} value={pPipeline} onChange={e => setPPipeline(e.target.value)} />
+
+              <label style={s.label}>Quality — what was validated or rejected</label>
+              <textarea style={{ ...s.input, minHeight: '60px', resize: 'vertical' }} value={pQuality} onChange={e => setPQuality(e.target.value)} />
+
+              <label style={s.label}>Stack (comma separated)</label>
+              <input style={s.input} value={pTags} onChange={e => setPTags(e.target.value)} placeholder="SQL, Python, AWS, Glue" />
+
+              <label style={s.label}>Repo URL</label>
+              <input style={s.input} value={pGithub} onChange={e => setPGithub(e.target.value)} placeholder="https://github.com/..." />
+
+              <label style={s.label}>Architecture diagram URL</label>
+              <input style={s.input} value={pDiagram} onChange={e => setPDiagram(e.target.value)} placeholder="https://..." />
+
+              <label style={s.label}>Article URL</label>
+              <input style={s.input} value={pArticle} onChange={e => setPArticle(e.target.value)} placeholder="https://..." />
+
+              <label style={s.label}>Live demo URL</label>
+              <input style={s.input} value={pDemo} onChange={e => setPDemo(e.target.value)} placeholder="https://..." />
+
               <label style={s.label}>Year</label>
               <input style={s.input} value={pYear} onChange={e => setPYear(e.target.value)} placeholder="2026" />
-              <label style={s.label}>GitHub URL</label>
-              <input style={s.input} value={pGithub} onChange={e => setPGithub(e.target.value)} placeholder="https://github.com/..." />
+
               <label style={s.label}>Status</label>
               <select style={{ ...s.input, cursor: 'pointer' }} value={pStatus} onChange={e => setPStatus(e.target.value)}>
                 <option>In Progress</option>
                 <option>Published</option>
               </select>
+
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button style={s.btn} onClick={saveProject}>{editId ? 'Save Changes' : 'Add Project'}</button>
                 {editId && <button style={s.btnGhost} onClick={clearProjectForm}>Cancel</button>}
@@ -273,6 +305,9 @@ export default function Dashboard() {
 
             <div>
               <div style={s.sectionTitle}>Existing ({projects.length})</div>
+              <div style={{ fontSize: '0.68rem', color: deCount >= 3 ? 'rgba(255,255,255,0.3)' : '#f472b6', marginBottom: '1rem' }}>
+                {deCount} in Data Engineering — filter {deCount >= 3 ? 'is live' : 'hidden until 3'}
+              </div>
               {projects.map((p, i) => (
                 <div key={p.id} style={s.card}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
@@ -282,8 +317,9 @@ export default function Dashboard() {
                       <button style={s.btnTiny} onClick={() => move('projects', projects, i, 1)} disabled={i === projects.length - 1}>↓</button>
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginBottom: '0.6rem' }}>
-                    {p.status} {p.year ? '· ' + p.year : ''}
+                  <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.6rem' }}>
+                    {p.category} · {p.status}{p.year ? ' · ' + p.year : ''}
+                    {!p.diagram_url && <span style={{ color: 'rgba(244,114,182,0.6)' }}> · no diagram</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                     <button style={s.btnTiny} onClick={() => editProject(p)}>Edit</button>
@@ -296,16 +332,16 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ---------- SKILLS ---------- */}
+        {/* SKILLS */}
         {tab === 'skills' && (
           <div className="admin-col">
             <div>
               <div style={s.sectionTitle}>{editId ? 'Edit Skill' : 'Add New Skill'}</div>
               <label style={s.label}>Skill Name</label>
-              <input style={s.input} value={skName} onChange={e => setSkName(e.target.value)} placeholder="e.g. PyTorch" />
-              <label style={s.label}>Category</label>
+              <input style={s.input} value={skName} onChange={e => setSkName(e.target.value)} placeholder="e.g. Airflow" />
+              <label style={s.label}>Group</label>
               <select style={{ ...s.input, cursor: 'pointer' }} value={skCategory} onChange={e => setSkCategory(e.target.value)}>
-                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                {SKILL_CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
               <label style={{ ...s.label, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '1rem' }}>
                 <input type="checkbox" checked={skFeatured} onChange={e => setSkFeatured(e.target.checked)} style={{ cursor: 'pointer' }} />
@@ -322,33 +358,42 @@ export default function Dashboard() {
 
             <div>
               <div style={s.sectionTitle}>Existing ({skills.length})</div>
-              {skills.map((sk, i) => (
-                <div key={sk.id} style={{ ...s.card, padding: '0.7rem 0.9rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <div>
-                      <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>{sk.name}</span>
-                      {sk.featured && <span style={{ fontSize: '0.55rem', color: '#0f0f0f', background: '#fff', padding: '2px 6px', marginLeft: '0.5rem', letterSpacing: '0.08em' }}>FEATURED</span>}
-                      <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', marginTop: '2px' }}>{sk.category}</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
-                      <button style={s.btnTiny} onClick={() => move('skills', skills, i, -1)} disabled={i === 0}>↑</button>
-                      <button style={s.btnTiny} onClick={() => move('skills', skills, i, 1)} disabled={i === skills.length - 1}>↓</button>
-                    </div>
+              {SKILL_CATEGORIES.map(cat => {
+                const items = skills.filter(sk => sk.category === cat)
+                if (items.length === 0) return null
+                return (
+                  <div key={cat} style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>{cat}</div>
+                    {items.map((sk) => {
+                      const gi = skills.findIndex(x => x.id === sk.id)
+                      return (
+                        <div key={sk.id} style={{ ...s.card, padding: '0.6rem 0.9rem', marginBottom: '0.4rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                            <div>
+                              <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.8)' }}>{sk.name}</span>
+                              {sk.featured && <span style={{ fontSize: '0.52rem', color: '#0f0f0f', background: '#fff', padding: '2px 6px', marginLeft: '0.5rem', letterSpacing: '0.08em' }}>FEATURED</span>}
+                            </div>
+                            <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                              <button style={s.btnTiny} onClick={() => move('skills', skills, gi, -1)} disabled={gi === 0}>↑</button>
+                              <button style={s.btnTiny} onClick={() => move('skills', skills, gi, 1)} disabled={gi === skills.length - 1}>↓</button>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                            <button style={s.btnTiny} onClick={() => editSkill(sk)}>Edit</button>
+                            <button style={s.btnTiny} onClick={() => toggleFeatured(sk.id, sk.featured)}>{sk.featured ? 'Unfeature' : 'Feature'}</button>
+                            <button style={s.btnDanger} onClick={() => deleteSkill(sk.id)}>Delete</button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                    <button style={s.btnTiny} onClick={() => editSkill(sk)}>Edit</button>
-                    <button style={s.btnTiny} onClick={() => toggleFeatured(sk.id, sk.featured)}>
-                      {sk.featured ? 'Unfeature' : 'Feature'}
-                    </button>
-                    <button style={s.btnDanger} onClick={() => deleteSkill(sk.id)}>Delete</button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
 
-        {/* ---------- CERTS ---------- */}
+        {/* CERTS */}
         {tab === 'certs' && (
           <div className="admin-col">
             <div>
@@ -356,7 +401,7 @@ export default function Dashboard() {
               <label style={s.label}>Title</label>
               <input style={s.input} value={cTitle} onChange={e => setCTitle(e.target.value)} placeholder="Certification title" />
               <label style={s.label}>Issuer</label>
-              <input style={s.input} value={cIssuer} onChange={e => setCIssuer(e.target.value)} placeholder="e.g. NASA, Google, Tuwaiq" />
+              <input style={s.input} value={cIssuer} onChange={e => setCIssuer(e.target.value)} placeholder="e.g. AWS, Udacity, Tuwaiq" />
               <label style={s.label}>Year</label>
               <input style={s.input} value={cYear} onChange={e => setCYear(e.target.value)} placeholder="2026" />
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -389,12 +434,12 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ---------- ABOUT & LINKS ---------- */}
+        {/* ABOUT */}
         {tab === 'about' && (
           <div style={{ maxWidth: '640px' }}>
-            <div style={s.sectionTitle}>Hero & About</div>
+            <div style={s.sectionTitle}>Hero and About</div>
             <label style={s.label}>Hero Tagline (above your name)</label>
-            <input style={s.input} value={aTagline} onChange={e => setATagline(e.target.value)} placeholder="Spatial Data Scientist · Riyadh" />
+            <input style={s.input} value={aTagline} onChange={e => setATagline(e.target.value)} placeholder="Data Engineer" />
             <label style={s.label}>Hero Paragraph (under your name)</label>
             <textarea style={{ ...s.input, minHeight: '90px', resize: 'vertical' }} value={aP1} onChange={e => setAP1(e.target.value)} />
             <label style={s.label}>About Heading</label>
@@ -404,17 +449,17 @@ export default function Dashboard() {
 
             <div style={{ ...s.sectionTitle, marginTop: '2rem' }}>Contact Links</div>
             <label style={s.label}>GitHub URL</label>
-            <input style={s.input} value={aGithub} onChange={e => setAGithub(e.target.value)} placeholder="https://github.com/..." />
+            <input style={s.input} value={aGithub} onChange={e => setAGithub(e.target.value)} />
             <label style={s.label}>LinkedIn URL</label>
-            <input style={s.input} value={aLinkedin} onChange={e => setALinkedin(e.target.value)} placeholder="https://linkedin.com/in/..." />
+            <input style={s.input} value={aLinkedin} onChange={e => setALinkedin(e.target.value)} />
             <label style={s.label}>Email</label>
-            <input style={s.input} value={aEmail} onChange={e => setAEmail(e.target.value)} placeholder="you@domain.com" />
+            <input style={s.input} value={aEmail} onChange={e => setAEmail(e.target.value)} />
 
             <button style={s.btn} onClick={saveAbout}>Save All</button>
           </div>
         )}
 
-        {/* ---------- CV ---------- */}
+        {/* CV */}
         {tab === 'cv' && (
           <div style={{ maxWidth: '520px' }}>
             <div style={s.sectionTitle}>CV / Resume</div>
@@ -424,15 +469,13 @@ export default function Dashboard() {
               </div>
               <label style={{ ...s.btn, display: 'inline-block', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.5 : 1 }}>
                 {uploading ? 'Uploading...' : 'Choose PDF'}
-                <input
-                  type="file" accept="application/pdf" style={{ display: 'none' }} disabled={uploading}
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCV(f); e.target.value = '' }}
-                />
+                <input type="file" accept="application/pdf" style={{ display: 'none' }} disabled={uploading}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCV(f); e.target.value = '' }} />
               </label>
               {aCvUrl && (
                 <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ ...s.label, marginBottom: '0.5rem' }}>Current file</div>
-                  <a href={aCvUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', wordBreak: 'break-all', textDecoration: 'underline' }}>
+                  <a href={aCvUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'underline' }}>
                     View current CV
                   </a>
                 </div>

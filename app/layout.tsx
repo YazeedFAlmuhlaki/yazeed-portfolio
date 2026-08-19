@@ -13,22 +13,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Yazeed Almuhlaki — Spatial Data Scientist & GeoAI Practitioner",
-  description: "Spatial Data Scientist and GeoAI practitioner based in Riyadh. Building predictive systems from location data — groundwater mapping, environmental risk, and Earth observation AI.",
-  keywords: "Spatial Data Science, GeoAI, Remote Sensing, Saudi Arabia, Vision 2030, Python, GeoPandas, Google Earth Engine",
+  title: "Yazeed Almuhlaki — Data Engineer",
+  description: "Data engineer in Riyadh building pipelines that move national-scale Saudi data from raw to serving. SQL, Python, AWS, PostgreSQL, DuckDB.",
+  keywords: "Data Engineering, Data Pipelines, ETL, ELT, SQL, Python, AWS, Azure, PostgreSQL, PostGIS, DuckDB, Parquet, Data Modeling, Data Quality, Geospatial Data Engineering, Saudi Arabia, Vision 2030",
   authors: [{ name: "Yazeed Almuhlaki" }],
   openGraph: {
-    title: "Yazeed Almuhlaki — Spatial Data Scientist",
-    description: "GeoAI projects, Earth observation work, and spatial analytics built for Vision 2030.",
+    title: "Yazeed Almuhlaki — Data Engineer",
+    description: "Pipelines, data modeling, and quality gates for national-scale Saudi data.",
     url: "https://almuhlaki.dev",
-    siteName: "Yazeed Almuhlaki Portfolio",
+    siteName: "Yazeed Almuhlaki",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Yazeed Almuhlaki — Spatial Data Scientist",
-    description: "GeoAI projects, Earth observation work, and spatial analytics built for Vision 2030.",
+    title: "Yazeed Almuhlaki — Data Engineer",
+    description: "Pipelines, data modeling, and quality gates for national-scale Saudi data.",
   },
 };
 
