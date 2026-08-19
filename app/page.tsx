@@ -353,7 +353,7 @@ export default function Home() {
             Let&apos;s connect.
           </h2>
           <p style={{ fontFamily: SANS, fontWeight: 300, fontSize: '1rem', color: T.muted, lineHeight: 1.85, maxWidth: '520px', margin: '0 0 2.5rem' }}>
-            Open to data engineering internships and roles in Riyadh, and to work where location data has to be moved, modeled, and trusted.
+            {about?.contact_text || ''}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {[

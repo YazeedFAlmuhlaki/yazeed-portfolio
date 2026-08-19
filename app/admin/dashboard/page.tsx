@@ -71,6 +71,7 @@ export default function Dashboard() {
   const [aLinkedin, setALinkedin] = useState('')
   const [aEmail, setAEmail] = useState('')
   const [aCvUrl, setACvUrl] = useState('')
+  const [aContact, setAContact] = useState('')
 
   const [uploading, setUploading] = useState(false)
 
@@ -94,6 +95,7 @@ export default function Dashboard() {
       setAHeading(ab.data.heading || ''); setAP1(ab.data.paragraph1 || ''); setAP2(ab.data.paragraph2 || '')
       setATagline(ab.data.tagline || ''); setAGithub(ab.data.github_url || '')
       setALinkedin(ab.data.linkedin_url || ''); setAEmail(ab.data.email || ''); setACvUrl(ab.data.cv_url || '')
+      setAContact(ab.data.contact_text || '')
     }
   }
 
@@ -191,7 +193,7 @@ export default function Dashboard() {
   const saveAbout = async () => {
     await supabase.from('about').update({
       heading: aHeading, paragraph1: aP1, paragraph2: aP2, tagline: aTagline,
-      github_url: aGithub, linkedin_url: aLinkedin, email: aEmail,
+      github_url: aGithub, linkedin_url: aLinkedin, email: aEmail, contact_text: aContact,
     }).eq('id', aboutId)
     notify('About and links saved')
   }
@@ -446,6 +448,9 @@ export default function Dashboard() {
             <textarea style={{ ...s.input, minHeight: '70px', resize: 'vertical' }} value={aHeading} onChange={e => setAHeading(e.target.value)} />
             <label style={s.label}>About Paragraph</label>
             <textarea style={{ ...s.input, minHeight: '110px', resize: 'vertical' }} value={aP2} onChange={e => setAP2(e.target.value)} />
+
+            <label style={s.label}>Contact Paragraph</label>
+            <textarea style={{ ...s.input, minHeight: '80px', resize: 'vertical' }} value={aContact} onChange={e => setAContact(e.target.value)} />
 
             <div style={{ ...s.sectionTitle, marginTop: '2rem' }}>Contact Links</div>
             <label style={s.label}>GitHub URL</label>
