@@ -13,12 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Yazeed Almuhlaki — Data Engineer",
+  title: "Yazeed Almuhlaki | Data Engineer",
   description: "Data engineer in Riyadh building pipelines that move national-scale Saudi data from raw to serving. SQL, Python, AWS, PostgreSQL, DuckDB.",
   keywords: "Data Engineering, Data Pipelines, ETL, ELT, SQL, Python, AWS, Azure, PostgreSQL, PostGIS, DuckDB, Parquet, Data Modeling, Data Quality, Geospatial Data Engineering, Saudi Arabia, Vision 2030",
   authors: [{ name: "Yazeed Almuhlaki" }],
   openGraph: {
-    title: "Yazeed Almuhlaki — Data Engineer",
+    title: "Yazeed Almuhlaki | Data Engineer",
     description: "Pipelines, data modeling, and quality gates for national-scale Saudi data.",
     url: "https://almuhlaki.dev",
     siteName: "Yazeed Almuhlaki",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Yazeed Almuhlaki — Data Engineer",
+    title: "Yazeed Almuhlaki | Data Engineer",
     description: "Pipelines, data modeling, and quality gates for national-scale Saudi data.",
   },
 };
