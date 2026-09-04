@@ -13,8 +13,8 @@ const T = {
 const SERIF = "'Playfair Display', Georgia, serif"
 const SANS = "'Outfit', -apple-system, system-ui, sans-serif"
 
-const SKILL_GROUPS = ['Data Engineering', 'Cloud and Storage', 'Geospatial Engineering']
-const PROJECT_CATEGORIES = ['Data Engineering', 'Analytics and Spatial Science']
+const SKILL_GROUPS = ['Data Engineering', 'Cloud and Storage']
+const PROJECT_CATEGORIES = ['Data Engineering', 'Analytics and Modeling']
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null)
